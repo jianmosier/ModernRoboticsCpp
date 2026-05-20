@@ -19,17 +19,33 @@ The primary purpose of the provided software is to be easy to read and education
 
 ## Installation
 
-### 1. Install Eigen library.
+### 1. Install dependencies.
+* CMake 3.14 or newer
+* A C++11 compiler
+* Eigen3
+* GoogleTest is downloaded automatically when tests are enabled.
+
+If Eigen3 is not found, CMake can download Eigen 3.4.0 automatically.
+
+* On Windows
+```console
+foo@bar:~$ vcpkg install eigen3:x64-windows
+```
+Visual Studio 2022 or Visual Studio Build Tools 2022 are supported. The Visual
+Studio IDE is not required; you can build from a Visual Studio Code terminal
+with MSVC Build Tools and Ninja.
+
 * On Mac
 ```console
 foo@bar:~$ brew install eigen
 ```
+
 * On Linux
 ```console
 foo@bar:~$ sudo apt-get install libeigen3-dev
 ```
 
-### 2. Prepare build
+### 2. Prepare build.
 ```console
 foo@bar:~$ mkdir build && cd build
 ```
@@ -39,16 +55,75 @@ To define a custom install directory we simply pass it to cmake:
 ```console
 foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install
 ```
-Or just configure with defaults
+
+If Eigen3 was installed with vcpkg, add the vcpkg toolchain file:
+```console
+foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_TOOLCHAIN_FILE=C:\path\to\vcpkg\scripts\buildsystems\vcpkg.cmake
+```
+
+On Windows with Visual Studio:
+```console
+foo@bar:build $ cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../_install
+```
+
+On Windows with Ninja, for example from a Visual Studio Code terminal:
+```console
+foo@bar:build $ cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../_install
+```
+
+Or just configure with defaults:
 ```console
 foo@bar:build $ cmake ..
 ```
-Building and installing library
+
+To use an existing Eigen checkout, set `EIGEN3_INCLUDE_DIR` to the folder
+containing `Eigen/Dense`:
+```console
+foo@bar:build $ cmake .. -DEIGEN3_INCLUDE_DIR=C:\path\to\eigen
+```
+
+Building and installing library:
+```console
+foo@bar:build $ cmake --build . --config Release
+foo@bar:build $ cmake --install . --config Release
+```
+
+With Makefiles, this also works:
 ```console
 foo@bar:build $ make all && make install
 ```
 
+## Using the library
+
+Include the public header and use the `mr` namespace:
+
+```cpp
+#include <modern_robotics.h>
+
+Eigen::Matrix3d m = mr::VecToso3(Eigen::Vector3d(1, 2, 3));
+```
+
+In CMake:
+
+```cmake
+find_package(ModernRoboticsCpp CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE ModernRoboticsCpp::ModernRoboticsCpp)
+```
+
+On Windows, make sure `ModernRoboticsCpp.dll` is next to your executable or in `PATH`.
+
 ## Testing the library
+
 ```console
 foo@bar:build $ ./lib_test
+```
+
+On Windows with the Visual Studio generator:
+```console
+foo@bar:build $ .\Release\lib_test.exe
+```
+
+Or run all discovered tests with CTest:
+```console
+foo@bar:build $ ctest -C Release --output-on-failure
 ```
