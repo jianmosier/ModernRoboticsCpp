@@ -27,9 +27,13 @@ The primary purpose of the provided software is to be easy to read and education
 
 If Eigen3 is not found, CMake can download Eigen 3.4.0 automatically.
 
-* On Windows: Visual Studio 2022 or Visual Studio Build Tools 2022 are supported.
-  The Visual Studio IDE is not required; you can build from a Visual Studio Code
-  terminal with MSVC Build Tools and Ninja.
+* On Windows
+```console
+foo@bar:~$ vcpkg install eigen3:x64-windows
+```
+Visual Studio 2022 or Visual Studio Build Tools 2022 are supported. The Visual
+Studio IDE is not required; you can build from a Visual Studio Code terminal
+with MSVC Build Tools and Ninja.
 
 * On Mac
 ```console
@@ -50,6 +54,11 @@ By default cmake will install our build into the system directories.
 To define a custom install directory we simply pass it to cmake:
 ```console
 foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install
+```
+
+If Eigen3 was installed with vcpkg, add the vcpkg toolchain file:
+```console
+foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_TOOLCHAIN_FILE=C:\path\to\vcpkg\scripts\buildsystems\vcpkg.cmake
 ```
 
 On Windows with Visual Studio:
