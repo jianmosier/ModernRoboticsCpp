@@ -23,35 +23,31 @@ The primary purpose of the provided software is to be easy to read and education
 * CMake 3.14 or newer
 * A C++11 compiler
 * Eigen3
-  * CMake can find an installed Eigen3 package, use `EIGEN3_INCLUDE_DIR`, or download Eigen 3.4.0 automatically.
-  * GoogleTest is downloaded automatically when tests are enabled.
+* GoogleTest is downloaded automatically when tests are enabled.
 
-On Windows, Visual Studio 2022 or Visual Studio Build Tools 2022 are supported.
-The Visual Studio IDE is not required. To use an existing Eigen checkout:
+If Eigen3 is not found, CMake can download Eigen 3.4.0 automatically.
 
-```console
-cmake .. -DEIGEN3_INCLUDE_DIR=C:\path\to\eigen
-```
+* On Windows: Visual Studio 2022 or Visual Studio Build Tools 2022 are supported.
+  The Visual Studio IDE is not required; you can build from a Visual Studio Code
+  terminal with MSVC Build Tools and Ninja.
 
-On Mac:
-
+* On Mac
 ```console
 foo@bar:~$ brew install eigen
 ```
 
-On Linux:
-
+* On Linux
 ```console
 foo@bar:~$ sudo apt-get install libeigen3-dev
 ```
 
 ### 2. Prepare build.
-
 ```console
 foo@bar:~$ mkdir build && cd build
 ```
 
-To define a custom install directory:
+By default cmake will install our build into the system directories.
+To define a custom install directory we simply pass it to cmake:
 ```console
 foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install
 ```
@@ -61,7 +57,7 @@ On Windows with Visual Studio:
 foo@bar:build $ cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../_install
 ```
 
-From a Visual Studio Code terminal with MSVC Build Tools and Ninja:
+On Windows with Ninja, for example from a Visual Studio Code terminal:
 ```console
 foo@bar:build $ cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../_install
 ```
@@ -69,6 +65,12 @@ foo@bar:build $ cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PRE
 Or just configure with defaults:
 ```console
 foo@bar:build $ cmake ..
+```
+
+To use an existing Eigen checkout, set `EIGEN3_INCLUDE_DIR` to the folder
+containing `Eigen/Dense`:
+```console
+foo@bar:build $ cmake .. -DEIGEN3_INCLUDE_DIR=C:\path\to\eigen
 ```
 
 Building and installing library:
@@ -103,6 +105,16 @@ On Windows, make sure `ModernRoboticsCpp.dll` is next to your executable or in `
 
 ## Testing the library
 
+```console
+foo@bar:build $ ./lib_test
+```
+
+On Windows with the Visual Studio generator:
+```console
+foo@bar:build $ .\Release\lib_test.exe
+```
+
+Or run all discovered tests with CTest:
 ```console
 foo@bar:build $ ctest -C Release --output-on-failure
 ```
