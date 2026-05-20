@@ -19,101 +19,84 @@ The primary purpose of the provided software is to be easy to read and education
 
 ## Installation
 
-ModernRoboticsCpp requires CMake 3.14 or newer and a C++11 compiler.
-Eigen is used as a header-only dependency. CMake will first try to find an
-installed Eigen3 package, then an `EIGEN3_INCLUDE_DIR` path, and finally
-download Eigen 3.4.0 automatically when `MODERN_ROBOTICS_FETCH_DEPENDENCIES`
-is enabled.
+### 1. Install dependencies.
+* CMake 3.14 or newer
+* A C++11 compiler
+* Eigen3
+  * CMake can find an installed Eigen3 package, use `EIGEN3_INCLUDE_DIR`, or download Eigen 3.4.0 automatically.
+  * GoogleTest is downloaded automatically when tests are enabled.
 
-### Windows
-
-With Visual Studio 2022:
+On Windows, Visual Studio 2022 is supported. To use an existing Eigen checkout:
 
 ```console
-cmake -S . -B build-win -G "Visual Studio 17 2022" -A x64
-cmake --build build-win --config Release
-cmake --install build-win --config Release --prefix _install
+cmake .. -DEIGEN3_INCLUDE_DIR=C:\path\to\eigen
 ```
 
-To use an existing Eigen checkout instead of downloading it:
+On Mac:
 
 ```console
-cmake -S . -B build-win -DEIGEN3_INCLUDE_DIR=C:\path\to\eigen
+foo@bar:~$ brew install eigen
 ```
 
-### macOS and Linux
-
-Install Eigen with your package manager if you do not want CMake to download it:
+On Linux:
 
 ```console
-brew install eigen
-sudo apt-get install libeigen3-dev
+foo@bar:~$ sudo apt-get install libeigen3-dev
 ```
 
-Then configure, build, and install:
+### 2. Prepare build.
 
 ```console
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-cmake --install build --prefix _install
+foo@bar:~$ mkdir build && cd build
+```
+
+To define a custom install directory:
+```console
+foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install
+```
+
+On Windows with Visual Studio:
+```console
+foo@bar:build $ cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../_install
+```
+
+Or just configure with defaults:
+```console
+foo@bar:build $ cmake ..
+```
+
+Building and installing library:
+```console
+foo@bar:build $ cmake --build . --config Release
+foo@bar:build $ cmake --install . --config Release
+```
+
+With Makefiles, this also works:
+```console
+foo@bar:build $ make all && make install
 ```
 
 ## Using the library
 
-The public header is:
+Include the public header and use the `mr` namespace:
 
 ```cpp
 #include <modern_robotics.h>
+
+Eigen::Matrix3d m = mr::VecToso3(Eigen::Vector3d(1, 2, 3));
 ```
 
-The functions live in the `mr` namespace. A minimal example:
-
-```cpp
-#include <Eigen/Dense>
-#include <iostream>
-#include <modern_robotics.h>
-
-int main() {
-  Eigen::Vector3d omega(1.0, 2.0, 3.0);
-  std::cout << mr::VecToso3(omega) << '\n';
-  return 0;
-}
-```
-
-If ModernRoboticsCpp is part of your source tree, add it directly:
-
-```cmake
-add_subdirectory(path/to/ModernRoboticsCpp)
-target_link_libraries(my_app PRIVATE ModernRoboticsCpp::ModernRoboticsCpp)
-```
-
-If you installed the library, point CMake at the install prefix and use the
-exported package. The consuming project still needs Eigen available through an
-installed Eigen3 package or `EIGEN3_INCLUDE_DIR`.
-
-```console
-cmake -S . -B build -DCMAKE_PREFIX_PATH=C:\path\to\ModernRoboticsCpp\_install
-```
+In CMake:
 
 ```cmake
 find_package(ModernRoboticsCpp CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE ModernRoboticsCpp::ModernRoboticsCpp)
 ```
 
-When using the shared library on Windows, make sure `ModernRoboticsCpp.dll` is
-next to your executable or available through `PATH`.
+On Windows, make sure `ModernRoboticsCpp.dll` is next to your executable or in `PATH`.
 
 ## Testing the library
 
-Tests are enabled by default when this repository is the top-level CMake project.
-GoogleTest is downloaded automatically during configure.
-
 ```console
-ctest --test-dir build-win -C Release --output-on-failure
-```
-
-For single-config generators such as Makefiles or Ninja:
-
-```console
-ctest --test-dir build --output-on-failure
+foo@bar:build $ ctest -C Release --output-on-failure
 ```
