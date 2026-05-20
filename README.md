@@ -26,7 +26,8 @@ The primary purpose of the provided software is to be easy to read and education
   * CMake can find an installed Eigen3 package, use `EIGEN3_INCLUDE_DIR`, or download Eigen 3.4.0 automatically.
   * GoogleTest is downloaded automatically when tests are enabled.
 
-On Windows, Visual Studio 2022 is supported. To use an existing Eigen checkout:
+On Windows, Visual Studio 2022 or Visual Studio Build Tools 2022 are supported.
+The Visual Studio IDE is not required. To use an existing Eigen checkout:
 
 ```console
 cmake .. -DEIGEN3_INCLUDE_DIR=C:\path\to\eigen
@@ -58,6 +59,11 @@ foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install
 On Windows with Visual Studio:
 ```console
 foo@bar:build $ cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../_install
+```
+
+From a Visual Studio Code terminal with MSVC Build Tools and Ninja:
+```console
+foo@bar:build $ cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../_install
 ```
 
 Or just configure with defaults:
