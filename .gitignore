@@ -1,5 +1,7 @@
 # builds
 build/
+build-*/
+_install*/
 
 # Prerequisites
 *.d

@@ -19,36 +19,101 @@ The primary purpose of the provided software is to be easy to read and education
 
 ## Installation
 
-### 1. Install Eigen library.
-* On Mac
+ModernRoboticsCpp requires CMake 3.14 or newer and a C++11 compiler.
+Eigen is used as a header-only dependency. CMake will first try to find an
+installed Eigen3 package, then an `EIGEN3_INCLUDE_DIR` path, and finally
+download Eigen 3.4.0 automatically when `MODERN_ROBOTICS_FETCH_DEPENDENCIES`
+is enabled.
+
+### Windows
+
+With Visual Studio 2022:
+
 ```console
-foo@bar:~$ brew install eigen
-```
-* On Linux
-```console
-foo@bar:~$ sudo apt-get install libeigen3-dev
+cmake -S . -B build-win -G "Visual Studio 17 2022" -A x64
+cmake --build build-win --config Release
+cmake --install build-win --config Release --prefix _install
 ```
 
-### 2. Prepare build
+To use an existing Eigen checkout instead of downloading it:
+
 ```console
-foo@bar:~$ mkdir build && cd build
+cmake -S . -B build-win -DEIGEN3_INCLUDE_DIR=C:\path\to\eigen
 ```
 
-By default cmake will install our build into the system directories.
-To define a custom install directory we simply pass it to cmake:
+### macOS and Linux
+
+Install Eigen with your package manager if you do not want CMake to download it:
+
 ```console
-foo@bar:build $ cmake .. -DCMAKE_INSTALL_PREFIX=../_install
+brew install eigen
+sudo apt-get install libeigen3-dev
 ```
-Or just configure with defaults
+
+Then configure, build, and install:
+
 ```console
-foo@bar:build $ cmake ..
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+cmake --install build --prefix _install
 ```
-Building and installing library
+
+## Using the library
+
+The public header is:
+
+```cpp
+#include <modern_robotics.h>
+```
+
+The functions live in the `mr` namespace. A minimal example:
+
+```cpp
+#include <Eigen/Dense>
+#include <iostream>
+#include <modern_robotics.h>
+
+int main() {
+  Eigen::Vector3d omega(1.0, 2.0, 3.0);
+  std::cout << mr::VecToso3(omega) << '\n';
+  return 0;
+}
+```
+
+If ModernRoboticsCpp is part of your source tree, add it directly:
+
+```cmake
+add_subdirectory(path/to/ModernRoboticsCpp)
+target_link_libraries(my_app PRIVATE ModernRoboticsCpp::ModernRoboticsCpp)
+```
+
+If you installed the library, point CMake at the install prefix and use the
+exported package. The consuming project still needs Eigen available through an
+installed Eigen3 package or `EIGEN3_INCLUDE_DIR`.
+
 ```console
-foo@bar:build $ make all && make install
+cmake -S . -B build -DCMAKE_PREFIX_PATH=C:\path\to\ModernRoboticsCpp\_install
 ```
+
+```cmake
+find_package(ModernRoboticsCpp CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE ModernRoboticsCpp::ModernRoboticsCpp)
+```
+
+When using the shared library on Windows, make sure `ModernRoboticsCpp.dll` is
+next to your executable or available through `PATH`.
 
 ## Testing the library
+
+Tests are enabled by default when this repository is the top-level CMake project.
+GoogleTest is downloaded automatically during configure.
+
 ```console
-foo@bar:build $ ./lib_test
+ctest --test-dir build-win -C Release --output-on-failure
+```
+
+For single-config generators such as Makefiles or Ninja:
+
+```console
+ctest --test-dir build --output-on-failure
 ```

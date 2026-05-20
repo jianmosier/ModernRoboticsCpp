@@ -280,7 +280,8 @@ namespace mr {
 	 */
 	Eigen::MatrixXd FKinSpace(const Eigen::MatrixXd& M, const Eigen::MatrixXd& Slist, const Eigen::VectorXd& thetaList) {
 		Eigen::MatrixXd T = M;
-		for (int i = (thetaList.size() - 1); i > -1; i--) {
+		const int thetaCount = static_cast<int>(thetaList.size());
+		for (int i = thetaCount - 1; i >= 0; i--) {
 			T = MatrixExp6(VecTose3(Slist.col(i)*thetaList(i))) * T;
 		}
 		return T;
@@ -298,7 +299,8 @@ namespace mr {
 	 */
 	Eigen::MatrixXd FKinBody(const Eigen::MatrixXd& M, const Eigen::MatrixXd& Blist, const Eigen::VectorXd& thetaList) {
 		Eigen::MatrixXd T = M;
-		for (int i = 0; i < thetaList.size(); i++) {
+		const int thetaCount = static_cast<int>(thetaList.size());
+		for (int i = 0; i < thetaCount; i++) {
 			T = T * MatrixExp6(VecTose3(Blist.col(i)*thetaList(i)));
 		}
 		return T;
@@ -313,7 +315,8 @@ namespace mr {
 		Eigen::MatrixXd Js = Slist;
 		Eigen::MatrixXd T = Eigen::MatrixXd::Identity(4, 4);
 		Eigen::VectorXd sListTemp(Slist.col(0).size());
-		for (int i = 1; i < thetaList.size(); i++) {
+		const int thetaCount = static_cast<int>(thetaList.size());
+		for (int i = 1; i < thetaCount; i++) {
 			sListTemp << Slist.col(i - 1) * thetaList(i - 1);
 			T = T * MatrixExp6(VecTose3(sListTemp));
 			// std::cout << "array: " << sListTemp << std::endl;
@@ -332,7 +335,8 @@ namespace mr {
 		Eigen::MatrixXd Jb = Blist;
 		Eigen::MatrixXd T = Eigen::MatrixXd::Identity(4, 4);
 		Eigen::VectorXd bListTemp(Blist.col(0).size());
-		for (int i = thetaList.size() - 2; i >= 0; i--) {
+		const int thetaCount = static_cast<int>(thetaList.size());
+		for (int i = thetaCount - 2; i >= 0; i--) {
 			bListTemp << Blist.col(i + 1) * thetaList(i + 1);
 			T = T * MatrixExp6(VecTose3(-1 * bListTemp));
 			// std::cout << "array: " << sListTemp << std::endl;
@@ -494,7 +498,7 @@ namespace mr {
 									const Eigen::VectorXd& g, const Eigen::VectorXd& Ftip, const std::vector<Eigen::MatrixXd>& Mlist,
 									const std::vector<Eigen::MatrixXd>& Glist, const Eigen::MatrixXd& Slist) {
 	    // the size of the lists
-		int n = thetalist.size();
+		const int n = static_cast<int>(thetalist.size());
 
 		Eigen::MatrixXd Mi = Eigen::MatrixXd::Identity(4, 4);
 		Eigen::MatrixXd Ai = Eigen::MatrixXd::Zero(6,n);
@@ -550,7 +554,7 @@ namespace mr {
 	 */
 	Eigen::VectorXd GravityForces(const Eigen::VectorXd& thetalist, const Eigen::VectorXd& g,
 									const std::vector<Eigen::MatrixXd>& Mlist, const std::vector<Eigen::MatrixXd>& Glist, const Eigen::MatrixXd& Slist) {
-	    int n = thetalist.size();
+	    const int n = static_cast<int>(thetalist.size());
 		Eigen::VectorXd dummylist = Eigen::VectorXd::Zero(n);
 		Eigen::VectorXd dummyForce = Eigen::VectorXd::Zero(6);
 		Eigen::VectorXd grav = mr::InverseDynamics(thetalist, dummylist, dummylist, g,
@@ -577,7 +581,7 @@ namespace mr {
 	 */
 	Eigen::MatrixXd MassMatrix(const Eigen::VectorXd& thetalist,
                                 const std::vector<Eigen::MatrixXd>& Mlist, const std::vector<Eigen::MatrixXd>& Glist, const Eigen::MatrixXd& Slist) {
-		int n = thetalist.size();
+		const int n = static_cast<int>(thetalist.size());
 		Eigen::VectorXd dummylist = Eigen::VectorXd::Zero(n);
 		Eigen::VectorXd dummyg = Eigen::VectorXd::Zero(3);
 		Eigen::VectorXd dummyforce = Eigen::VectorXd::Zero(6);
@@ -609,7 +613,7 @@ namespace mr {
 	 */
 	Eigen::VectorXd VelQuadraticForces(const Eigen::VectorXd& thetalist, const Eigen::VectorXd& dthetalist,
                                 const std::vector<Eigen::MatrixXd>& Mlist, const std::vector<Eigen::MatrixXd>& Glist, const Eigen::MatrixXd& Slist) {
-		int n = thetalist.size();
+		const int n = static_cast<int>(thetalist.size());
 		Eigen::VectorXd dummylist = Eigen::VectorXd::Zero(n);
 		Eigen::VectorXd dummyg = Eigen::VectorXd::Zero(3);
 		Eigen::VectorXd dummyforce = Eigen::VectorXd::Zero(6);
@@ -636,7 +640,7 @@ namespace mr {
 	 */
 	Eigen::VectorXd EndEffectorForces(const Eigen::VectorXd& thetalist, const Eigen::VectorXd& Ftip,
 								const std::vector<Eigen::MatrixXd>& Mlist, const std::vector<Eigen::MatrixXd>& Glist, const Eigen::MatrixXd& Slist) {
-		int n = thetalist.size();
+		const int n = static_cast<int>(thetalist.size());
 		Eigen::VectorXd dummylist = Eigen::VectorXd::Zero(n);
 		Eigen::VectorXd dummyg = Eigen::VectorXd::Zero(3);
 
@@ -694,8 +698,8 @@ namespace mr {
 		Eigen::MatrixXd ddthetamatT = ddthetamat.transpose();
 		Eigen::MatrixXd FtipmatT = Ftipmat.transpose();
 
-		int N = thetamat.rows();  // trajectory points
-		int dof = thetamat.cols();
+		const int N = static_cast<int>(thetamat.rows());  // trajectory points
+		const int dof = static_cast<int>(thetamat.cols());
 		Eigen::MatrixXd taumatT = Eigen::MatrixXd::Zero(dof, N);
 		for (int i = 0; i < N; ++i) {
 			taumatT.col(i) = InverseDynamics(thetamatT.col(i), dthetamatT.col(i), ddthetamatT.col(i), g, FtipmatT.col(i), Mlist, Glist, Slist);
@@ -709,8 +713,8 @@ namespace mr {
 		const Eigen::MatrixXd& Slist, double dt, int intRes) {
 		Eigen::MatrixXd taumatT = taumat.transpose();
 		Eigen::MatrixXd FtipmatT = Ftipmat.transpose();
-		int N = taumat.rows();  // force/torque points
-		int dof = taumat.cols();
+		const int N = static_cast<int>(taumat.rows());  // force/torque points
+		const int dof = static_cast<int>(taumat.cols());
 		Eigen::MatrixXd thetamatT = Eigen::MatrixXd::Zero(dof, N);
 		Eigen::MatrixXd dthetamatT = Eigen::MatrixXd::Zero(dof, N);
 		thetamatT.col(0) = thetalist;
@@ -819,7 +823,8 @@ namespace mr {
 		Eigen::MatrixXd thetamatdT = thetamatd.transpose();
 		Eigen::MatrixXd dthetamatdT = dthetamatd.transpose();
 		Eigen::MatrixXd ddthetamatdT = ddthetamatd.transpose();
-		int m = thetamatdT.rows(); int n = thetamatdT.cols();
+		const int m = static_cast<int>(thetamatdT.rows());
+		const int n = static_cast<int>(thetamatdT.cols());
 		Eigen::VectorXd thetacurrent = thetalist;
 		Eigen::VectorXd dthetacurrent = dthetalist;
 		Eigen::VectorXd eint = Eigen::VectorXd::Zero(m);
